@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blog.mapper.UserMapper">
+	<sql id="column">
+		u_password,u_name,u_info
+	</sql>
+
+	<select id="findUserByNameAndPassword"  parameterType="map"  resultType="User">  
+        select u_id,u_name,u_password,u_info from user  where u_name=#{u_name} and u_password=#{u_password}  
+    </select> 
+
+	<insert id="addUser" parameterType="user">
+		<selectKey keyColumn="u_id" resultType="int" keyProperty="u_id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO user (
+		<include refid="column"></include>
+		) VALUE(#{u_password},#{u_name},#{u_info})
+	</insert>
+
+	<select id="findByName" parameterType="string" resultType="user">
+		SELECT u_id,
+		<include refid="column"></include>
+		FROM user WHERE u_name = #{u_name}
+	</select>
+
+</mapper>

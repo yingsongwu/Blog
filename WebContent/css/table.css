@@ -1,0 +1,16 @@
+@CHARSET "UTF-8";
+.tb{
+  text-align:center;
+}
+.th{
+/*   font-weight:bold; */
+}
+.thtitle{
+  text-align:left;
+}
+.tdtitle{
+  text-align:left;
+}
+.tdtext{
+  text-align:center;
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="com.blog.mapper.PicMapper">
+ 
+  	<sql id="column">
+  		p_id,p_url
+  	</sql>
+  	
+  	<insert id="addPic" parameterType="pic">
+  		<selectKey keyColumn="p_id" resultType="int" keyProperty="p_id">
+  			SELECT LAST_INSERT_ID()
+  		</selectKey>
+  		INSERT INTO pic (<include refid="column"></include>) VALUE(null,#{p_url})
+  	</insert>
+  	
+  	<update id="deletePic" parameterType="pic">
+  		update pic set p_del = 1 where p_id = #{p_id}
+  	</update>
+  	
+  	<update id="updatePic" parameterType="pic">
+  		update pic set p_url = #{p_url} where p_id = #{p_id}
+  	</update>
+  	
+  	<select id="findById" resultType="pic" parameterType="int">
+  		select <include refid="column"></include> where p_id = #{p_id}
+  	</select>
+ 
+ </mapper>

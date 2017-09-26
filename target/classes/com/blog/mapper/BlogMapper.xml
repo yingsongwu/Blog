@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.BlogMapper">
+
+	<select id="findAll" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url FROM blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=0 ORDER BY b_time DESC;
+	</select>
+	<select id="findByUser" parameterType="string" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url FROM
+		blog ,USER,TYPES,pic WHERE blog.u_id=user.u_id AND
+		blog.t_id=types.t_id AND types.p_id=pic.p_id AND b_del=0 AND
+		u_name=#{u_name}
+	</select>
+	<select id="findByType" parameterType="string" resultType="BlogAndUser">
+		select b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url from
+		blog ,USER,TYPES,pic where blog.u_id=user.u_id AND
+		blog.t_id=types.t_id AND types.p_id=pic.p_id AND b_del=0 AND
+		t_name=#{u_name}
+	</select>
+	<select id="findByTitle" parameterType="int" resultType="BlogAndUser">
+		select b_id, b_readNum,b_time,t_name,u_name,b_mainText,b_title,b_info,p_url
+		from blog ,USER,TYPES,pic where blog.u_id=user.u_id AND
+		blog.t_id=types.t_id AND types.p_id=pic.p_id AND b_del=0 AND
+		b_id=#{b_id};
+	</select>
+	<update id="updateReadNum" parameterType="BlogAndUser">
+		update blog set
+		b_readNum = #{b_readNum }
+		where b_id =#{b_id}
+	</update>
+	<select id="findByReadNum" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url from blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=0 ORDER BY b_readNum DESC LIMIT 9
+	</select>
+	<select id="findByNum" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url FROM blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=0 ORDER BY b_commentsNum DESC LIMIT 9
+
+	</select>
+	<select id="findAllSearch" parameterType="string" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_time, t_name,u_name,b_title,b_info,p_url FROM
+		blog ,USER,TYPES,pic WHERE blog.u_id=user.u_id AND
+		blog.t_id=types.t_id AND types.p_id=pic.p_id AND b_del=0 AND
+		(t_name=#{t_name} OR u_name=#{u_name})
+	</select>
+
+
+
+	<!-- 111111111111111111111111111111111111111111111111111111111111111111 -->
+
+
+
+
+
+	<sql id="params">
+		b_id,b_title,b_time,b_info,b_srcText,b_mainText,b_draft,b_del,b_commentsNum,b_readNum,u_id,p_id,t_id
+	</sql>
+
+
+	<insert id="addBlog" parameterType="blog">
+		<selectKey keyColumn="b_id" order="AFTER" resultType="java.lang.Integer">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO blog (
+		<include refid="params"></include>
+		) VALUES(
+		NULL,#{b_title},NOW(),#{b_info},#{b_srcText},#{b_mainText},#{b_draft},#{b_del},#{b_commentsNum},#{b_readNum},#{u_id},#{p_id},#{t_id})
+	</insert>
+
+	<insert id="saveBlog" parameterType="blog">
+		<selectKey keyColumn="b_id" order="AFTER" resultType="java.lang.Integer">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO blog (
+		<include refid="params"></include>
+		) VALUES(
+		NULL,#{b_title},NOW(),#{b_info},#{b_srcText},#{b_mainText},0,#{b_del},#{b_commentsNum},#{b_readNum},#{u_id},#{p_id},#{t_id})
+	</insert>
+
+	<select id="findAllBlog" parameterType="int" resultType="blog">
+		select
+		<include refid="params" />
+		from blog
+		where b_del = 0 AND b_draft = 0 AND u_id=#{u_id}
+	</select>
+
+	<select id="findBlogDraft" parameterType="int" resultType="blog">
+		select
+		<include refid="params" />
+		from blog
+		where b_del = 0 AND b_draft = 1 AND u_id = #{u_id}
+	</select>
+
+	<select id="findBlogDeleted" parameterType="int" resultType="blog">
+		select
+		<include refid="params" />
+		from blog
+		where b_del = 1 AND b_draft = 0 AND u_id=#{u_id}
+	</select>
+
+	<delete id="delBlogById" parameterType="int">
+		<!-- DELETE FROM blog WHERE b_id=#{b_id} -->
+		UPDATE blog SET b_del=1 WHERE b_id=#{b_id}
+	</delete>
+
+	<select id="findBlogById" parameterType="int" resultType="blog">
+		select
+		<include refid="params" />
+		from blog
+		where b_id = #{b_id}
+	</select>
+	
+	<update id="updateBlogCommentsNum" parameterType="int">
+		UPDATE blog SET b_commentsNum=#{b_commentsNum} WHERE b_id=#{b_id}
+	</update>
+	
+	<select id="findBlogListById" parameterType="int" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_commentsNum,b_time, t_name,u_name,b_title,b_info,p_url FROM blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=0 AND blog.u_id=#{u_id} AND b_draft=0 ORDER BY b_time DESC;
+	</select>
+	
+	<select id="findBlogDraftById" parameterType="int" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_commentsNum,b_time, t_name,u_name,b_title,b_info,p_url FROM blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=0 AND blog.u_id=#{u_id} AND b_draft=1 ORDER BY b_time DESC;
+	</select>
+	
+	<select id="findBlogDeleteById" parameterType="int" resultType="BlogAndUser">
+		SELECT b_id,b_readNum,b_commentsNum,b_time, t_name,u_name,b_title,b_info,p_url FROM blog
+		,USER,TYPES,pic WHERE blog.u_id=user.u_id AND blog.t_id=types.t_id AND
+		types.p_id=pic.p_id AND b_del=1 AND blog.u_id=#{u_id} ORDER BY b_time DESC;
+	</select>
+	
+	<update id="updateBlog" parameterType="blog">
+		UPDATE blog
+		SET b_title = #{b_title},
+		b_info = #{b_info},
+		b_srcText = #{b_srcText},
+		b_mainText = #{b_mainText},
+		b_draft = #{b_draft}
+		WHERE b_id = #{b_id};
+	</update>
+</mapper>
